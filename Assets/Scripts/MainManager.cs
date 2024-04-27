@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainManager : MonoBehaviour
 {
@@ -12,20 +13,19 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
-    
+
     private bool m_Started = false;
     private int m_Points;
-    
     private bool m_GameOver = false;
+    public TMP_Text ScoreHistoryText;
 
-    
-    // Start is called before the first frame update
+
     void Start()
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
-        int[] pointCountArray = new [] {1,1,2,2,5,5};
+
+        int[] pointCountArray = new[] { 1, 1, 2, 2, 5, 5 };
         for (int i = 0; i < LineCount; ++i)
         {
             for (int x = 0; x < perLine; ++x)
@@ -36,9 +36,9 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        WriteInScoreHistoryText();
     }
-
-    private void Update()
+    void Update()
     {
         if (!m_Started)
         {
@@ -72,5 +72,30 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        Bus.Instance.AddScoreHistiry(m_Points);
+    }
+    // s.cottar+
+    public void BackToMenu()
+    {
+        SceneManager.UnloadSceneAsync(1);
+        SceneManager.LoadScene(0);
+    }
+    // s.cottar
+    void WriteInScoreHistoryText()
+    {
+        List<int> scoreHistory = Bus.Instance.scoreHistory;
+        int count = scoreHistory.Count;
+        string str = "";
+        
+        if (count > 0)
+        {
+            foreach (int score in scoreHistory)
+            {
+                Debug.Log(score);
+                str += (score.ToString() + "<br>");
+            }
+            ScoreHistoryText.text = str;
+        }
     }
 }
