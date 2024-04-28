@@ -17,11 +17,15 @@ public class MainManager : MonoBehaviour
     private bool m_Started = false;
     private int m_Points;
     private bool m_GameOver = false;
+
     public TMP_Text ScoreHistoryText;
+    public Text bestScoreText;
 
-
+    private List<int> scoreHistory;
     void Start()
     {
+        scoreHistory = Bus.Instance.scoreHistory;
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
 
@@ -36,7 +40,9 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
         WriteInScoreHistoryText();
+        bestScoreText.text = "Best Score: " + Bus.Instance.userName + ": " + Bus.Instance.points.ToString();
     }
     void Update()
     {
@@ -61,7 +67,6 @@ public class MainManager : MonoBehaviour
             }
         }
     }
-
     void AddPoint(int point)
     {
         m_Points += point;
@@ -74,25 +79,47 @@ public class MainManager : MonoBehaviour
         GameOverText.SetActive(true);
 
         Bus.Instance.AddScoreHistiry(m_Points);
+        WriteInScoreHistoryText();
+
+        BestGameScore();
     }
-    // s.cottar+
-    public void BackToMenu()
+    void BestGameScore()
     {
-        SceneManager.UnloadSceneAsync(1);
-        SceneManager.LoadScene(0);
-    }
-    // s.cottar
-    void WriteInScoreHistoryText()
-    {
-        List<int> scoreHistory = Bus.Instance.scoreHistory;
+        scoreHistory = Bus.Instance.scoreHistory;
         int count = scoreHistory.Count;
-        string str = "";
-        
         if (count > 0)
         {
+            int busPoints = Bus.Instance.points;
+            int maxGameScore = scoreHistory[count - 1];
+
+            if (maxGameScore > busPoints)
+            {
+                Bus.Instance.points = maxGameScore;
+                bestScoreText.text = "Best Score: " + Bus.Instance.userName + ": " + Bus.Instance.points.ToString();
+            }
+        }
+    }
+
+    public void BackToMenu()
+    {
+        scoreHistory = Bus.Instance.scoreHistory;
+        scoreHistory.Clear();
+
+        SceneManager.LoadScene(0);
+    }
+
+    void WriteInScoreHistoryText()
+    {
+        scoreHistory = Bus.Instance.scoreHistory;
+        int count = scoreHistory.Count;
+        string str = "";
+
+        if (count > 0)
+        {
+            str = "Score History:" + "<br>";
+
             foreach (int score in scoreHistory)
             {
-                Debug.Log(score);
                 str += (score.ToString() + "<br>");
             }
             ScoreHistoryText.text = str;
