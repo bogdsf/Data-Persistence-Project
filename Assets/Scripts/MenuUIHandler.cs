@@ -32,6 +32,15 @@ public class MenuUIHandler : MonoBehaviour
             pointsText.text = bestScore.ToString();
         }
     }
+
+    void Update()
+    {
+        if (Input.GetKey("escape"))
+        {
+            Application.Quit();
+        }
+    }
+
     public void StartNew()
     {
         if (userName == "")
